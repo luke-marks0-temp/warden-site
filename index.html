@@ -89,6 +89,7 @@
       border: 1px solid var(--border);
       background: var(--card);
       box-shadow: 0 12px 30px rgba(16, 16, 16, 0.08);
+      min-width: 0;
     }
 
     h2 {
@@ -116,9 +117,14 @@
       border: 1px solid rgba(16, 16, 16, 0.12);
       padding: 1rem 1.2rem;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
       color: #0b2f1d;
       white-space: pre;
       width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      flex: 1 1 auto;
       text-align: center;
       box-shadow: inset 0 0 20px rgba(31, 91, 59, 0.06);
     }
@@ -126,6 +132,10 @@
     .ascii-wrap {
       display: flex;
       justify-content: center;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .ascii-inner {
@@ -251,7 +261,7 @@ External user / API client
     </section>
 
     <section>
-      <h2>What the device does (two core jobs)</h2>
+      <h2>The two core tasks the border patrol device performs</h2>
       <div class="grid">
         <div class="card">
           <h3>Evidence capture</h3>
@@ -278,7 +288,7 @@ packet out (deterministic)</span></pre>
     </section>
 
     <section>
-      <h2>Prover–verifier replay check (why hashes matter)</h2>
+      <h2>Prover–verifier replay check: Why traffic reproducibility matters</h2>
       <div class="card">
         <p>The prover and verifier both execute the same declared workload. They each compute hashes of the packet stream after scrubbing. If the hashes match, the verifier is confident the prover did not run undeclared workloads outside the captured traffic.</p>
         <div class="ascii-wrap">
