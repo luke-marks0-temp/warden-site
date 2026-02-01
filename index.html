@@ -143,6 +143,65 @@
       text-align: left;
     }
 
+    .ascii-flipbook {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .ascii-flipbook .ascii {
+      --ascii-lines: 15;
+      --ascii-line-height: 1.25;
+      line-height: var(--ascii-line-height);
+      height: calc(var(--ascii-lines) * var(--ascii-line-height) * 1em + 2rem);
+    }
+
+    .ascii-flipbook[data-playing="false"]::after {
+      content: "Paused";
+      position: absolute;
+      top: 0.6rem;
+      right: 0.8rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: rgba(11, 47, 29, 0.6);
+      background: rgba(245, 242, 234, 0.85);
+      border: 1px solid rgba(16, 16, 16, 0.12);
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    .ascii-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      margin-top: 0.6rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .ascii-meta button {
+      font: inherit;
+      border: 1px solid var(--border);
+      background: rgba(245, 242, 234, 0.8);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 0.25rem 0.7rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .ascii-meta button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba(16, 16, 16, 0.12);
+    }
+
+    .ascii-meta button:active {
+      transform: translateY(0);
+    }
+
     .steps {
       display: grid;
       gap: 1rem;
@@ -194,6 +253,16 @@
       header { padding: 1.5rem; }
       .badge { font-size: 0.78rem; }
       .ascii { font-size: 0.8rem; }
+      .ascii-meta {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ascii-flipbook[data-playing="true"]::after {
+        content: "Static";
+      }
     }
   </style>
 </head>
@@ -218,22 +287,125 @@ Our proposal targets the datacenter’s north‑south uplink—the communication
       <div class="card">
         <p>Every packet in or out of the datacenter must pass through our evidence capture device, so it can both <em>record evidence</em> and <em>remove covert channels</em>. We illustrate below what this would look like.</p>
         <div class="ascii-wrap">
-          <pre class="ascii"><span class="ascii-inner">Datacenter
-  GPU cluster generates tokens
-  | plaintext payload inside datacenter
-  v
-+--------------------------------+
-|     Border Patrol Device       |
-|   - capture and hash traffic   |
-|   - make traffic reproducible  |
-+--------------------------------+
-  | north-south link (egress)
-  v
-External user / API client
-	  |
-          | one-way passive tap
-          v
-     Verifier evidence log</span></pre>
+          <div class="ascii-flipbook" data-flipbook data-interval="1000">
+            <pre class="ascii" aria-live="polite"><span class="ascii-inner" data-frame>
++--------------------+
+|     Datacenter     |
++--------------------+
+      |
+      | payload inside datacenter
+      |
++--------------------------------+   +-----------------------+
+| Border Patrol (hash + scrub)   |---| Verifier evidence log |
++--------------------------------+   +-----------------------+
+      |                                 
+      | north-south link (egress)
+      |
++--------------------------+
+| External API client      |
++--------------------------+</span></pre>
+            <template data-frames>
++--------------------+
+|     Datacenter     |
++--------------------+
+      ▣
+      | payload inside datacenter
+      |
++--------------------------------+   +-----------------------+
+| Border Patrol (hash + scrub)   |---| Verifier evidence log |
++--------------------------------+   +-----------------------+
+      |                              
+      | north-south link (egress)
+      |
++--------------------------+
+| External API client      |
++--------------------------+
+---
++--------------------+
+|     Datacenter     |
++--------------------+
+      |
+      ▣ payload inside datacenter
+      |
++--------------------------------+   +-----------------------+
+| Border Patrol (hash + scrub)   |---| Verifier evidence log |
++--------------------------------+   +-----------------------+
+      |
+      | north-south link (egress)
+      |
++--------------------------+
+| External API client      |
++--------------------------+
+---
++--------------------+
+|     Datacenter     |
++--------------------+
+      |
+      | payload inside datacenter
+      ▣
++--------------------------------+   +-----------------------+
+| Border Patrol (hash + scrub)   |---| Verifier evidence log |
++--------------------------------+   +-----------------------+
+      |
+      | north-south link (egress)
+      |
++--------------------------+
+| External API client      |
++--------------------------+
+---
++--------------------+
+|     Datacenter     |
++--------------------+
+      |
+      | payload inside datacenter
+      |
++--------------------------------+   +-----------------------+
+| Border Patrol (hash + scrub)   |▣--| Verifier evidence log |
++--------------------------------+   +-----------------------+
+      ▣
+      | north-south link (egress)
+      |
++--------------------------+
+| External API client      |
++--------------------------+
+---
++--------------------+
+|     Datacenter     |
++--------------------+
+      |
+      | payload inside datacenter
+      |
++--------------------------------+   +-----------------------+
+| Border Patrol (hash + scrub)   |-▣-| Verifier evidence log |
++--------------------------------+   +-----------------------+
+      |
+      ▣ north-south link (egress)
+      |
++--------------------------+
+| External API client      |
++--------------------------+
+---
++--------------------+
+|     Datacenter     |
++--------------------+
+      |
+      | payload inside datacenter
+      |
++--------------------------------+   +-----------------------+
+| Border Patrol (hash + scrub)   |--▣| Verifier evidence log |
++--------------------------------+   +-----------------------+
+      |                              |  hashing + timestamp  |
+      | north-south link (egress)
+      ▣
++--------------------------+
+| External API client      |
++--------------------------+
+</template>
+            <div class="ascii-meta">
+              <span data-caption>Flow: payloads exit → hashes captured → verifier log updates.</span>
+              <button type="button" data-toggle>Pause animation</button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -369,5 +541,73 @@ Hash + timestamp are computed over the payload stream and sent to verifier.</spa
     </section>
 
   </div>
+  <script>
+    const flipbooks = document.querySelectorAll("[data-flipbook]");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    flipbooks.forEach((flipbook) => {
+      const frameSlot = flipbook.querySelector("[data-frame]");
+      const template = flipbook.querySelector("[data-frames]");
+      const toggle = flipbook.querySelector("[data-toggle]");
+      const intervalMs = Number(flipbook.dataset.interval || 1000);
+
+      if (!frameSlot || !template) {
+        return;
+      }
+
+      const rawFrames = template.innerHTML
+        .trim()
+        .split("\n---\n")
+        .map((frame) =>
+          frame
+            .replace(/\s+$/, "")
+            .replace(/&gt;/g, ">")
+            .replace(/&lt;/g, "<")
+            .replace(/&amp;/g, "&")
+        );
+
+      let frameIndex = 0;
+      let timer = null;
+      let playing = !reduceMotion.matches;
+
+      const renderFrame = () => {
+        frameSlot.textContent = rawFrames[frameIndex % rawFrames.length];
+      };
+
+      const setPlaying = (nextState) => {
+        playing = nextState;
+        flipbook.dataset.playing = String(playing);
+        if (toggle) {
+          toggle.textContent = playing ? "Pause animation" : "Play animation";
+        }
+        if (playing) {
+          timer = window.setInterval(() => {
+            frameIndex = (frameIndex + 1) % rawFrames.length;
+            renderFrame();
+          }, intervalMs);
+        } else if (timer) {
+          window.clearInterval(timer);
+          timer = null;
+        }
+      };
+
+      renderFrame();
+      setPlaying(playing);
+
+      if (toggle) {
+        toggle.addEventListener("click", () => {
+          setPlaying(!playing);
+        });
+      }
+
+      reduceMotion.addEventListener("change", (event) => {
+        if (event.matches) {
+          setPlaying(false);
+        } else {
+          setPlaying(true);
+        }
+      });
+    });
+  </script>
 </body>
 </html>
