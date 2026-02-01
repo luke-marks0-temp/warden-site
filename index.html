@@ -336,7 +336,7 @@
       <div class="card">
         <h2>Abstract</h2>
 	<p>As AI becomes more powerful, it is increasingly important that we are able to verify the adherence of datacenters to international agreements on compute use. Much of the research in this area focuses on compliance – verifying that known data centre workloads abide by certain regulations or guidelines (e.g., that models cannot be trained on copyrighted data, or that inference inputs should not contain prompts asking models how to build a bioweapon).<br> 
-
+	<br>
 Our proposal targets the datacenter’s north‑south uplink—the communication chokepoint between the cluster and the outside world. An evidence capture device ("border patrol") at this link hashes and timestamps every packet payload (evidence capture) while actively scrubbing covert channels so traffic is reproducible. The prover retains plaintext internally; the verifier later requests samples and replays the same computation to compare hashes. This shifts trust from supply chains to observable physics, giving regulators or treaty partners a practical way to check comprehensive compute use without direct access to sensitive data.</p>
       </div>
     </section>
@@ -549,8 +549,8 @@ Hash packet stream                     Hash packet stream
             <div>Prover hash: <span data-hash="prover"></span></div>
             <div>Verifier hash: <span data-hash="verifier"></span></div>
             <div class="status" data-status></div>
-	    <div class="callout">Note: this is a toy hash to illustrate mismatch detection, not a cryptographic hash.<br>
-		    As you can see, if the prover tries to send cover messages, the verifier will detect this when they compare the traffic hashes.
+	    <div class="callout">As you can see, if the prover tries to send cover messages, the verifier will detect this when they compare the traffic hashes.<br>
+		Note: this is a toy hash to illustrate mismatch detection, not a cryptographic hash.
 	    </div>
           </div>
         </div>
