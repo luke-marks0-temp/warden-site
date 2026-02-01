@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verifying agreements on compute use using trusted networking hardware</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap');
+
+    :root {
+      --bg: #f5f2ea;
+      --bg-2: #fbf8f2;
+      --card: #ffffff;
+      --text: #101010;
+      --muted: #4b4b4b;
+      --accent: #1f5b3b;
+      --accent-2: #1f5b3b;
+      --accent-3: #1f5b3b;
+      --border: rgba(16, 16, 16, 0.12);
+      --glow: rgba(31, 91, 59, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(31, 91, 59, 0.08), transparent 60%),
+        radial-gradient(900px 500px at 90% 10%, rgba(16, 16, 16, 0.05), transparent 65%),
+        linear-gradient(160deg, var(--bg), var(--bg-2));
+      font-family: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3.5rem 1.5rem 5rem;
+    }
+
+    header {
+      display: grid;
+      gap: 1.25rem;
+      padding: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 242, 234, 0.9));
+      box-shadow: 0 0 60px var(--glow);
+      animation: rise 0.8s ease-out both;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 2.2rem + 1vw, 3.2rem);
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 1rem + 0.4vw, 1.3rem);
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .badge {
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(31, 91, 59, 0.12);
+      color: #0b2f1d;
+      font-size: 0.85rem;
+      letter-spacing: 0.4px;
+    }
+
+    section {
+      margin-top: 3rem;
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .card {
+      padding: 1.6rem;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      box-shadow: 0 12px 30px rgba(16, 16, 16, 0.08);
+    }
+
+    h2 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(1.4rem, 1.2rem + 0.6vw, 2rem);
+    }
+
+    h3 {
+      margin: 0.8rem 0 0.4rem;
+      font-size: 1.1rem;
+      color: var(--accent-2);
+    }
+
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .ascii {
+      font-family: "JetBrains Mono", "SF Mono", monospace;
+      font-size: 0.9rem;
+      background: #f2efe6;
+      border-radius: 12px;
+      border: 1px solid rgba(16, 16, 16, 0.12);
+      padding: 1rem 1.2rem;
+      overflow-x: auto;
+      color: #0b2f1d;
+      white-space: pre;
+      width: 100%;
+      text-align: center;
+      box-shadow: inset 0 0 20px rgba(31, 91, 59, 0.06);
+    }
+
+    .ascii-wrap {
+      display: flex;
+      justify-content: center;
+    }
+
+    .ascii-inner {
+      display: inline-block;
+      text-align: left;
+    }
+
+    .steps {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .step {
+      display: grid;
+      gap: 0.4rem;
+      padding: 1rem 1.1rem;
+      border-radius: 12px;
+      background: rgba(245, 242, 234, 0.9);
+      border: 1px solid var(--border);
+    }
+
+    .step strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .callout {
+      border-left: 3px solid var(--accent-3);
+      padding-left: 1rem;
+      color: var(--muted);
+    }
+
+    .glossary {
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .glossary span {
+      color: var(--accent-2);
+      font-weight: 600;
+    }
+
+    footer {
+      margin-top: 3rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 720px) {
+      header { padding: 1.5rem; }
+      .badge { font-size: 0.78rem; }
+      .ascii { font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Verifying agreements on compute use using trusted networking hardware</h1>
+      <p class="subtitle">A simple explanation of how we capture, scrub and verify inference traffic at a datacenter north‑south link.</p>
+    </header>
+
+    <section>
+      <div class="card">
+        <h2>Abstract</h2>
+        <p>As AI becomes more powerful, it is increasingly important that we are able to verify the adherence of datacenters to international agreements on compute use. Much of the research in this area focuses on compliance – verifying that known data centre workloads abide by certain regulations or guidelines (e.g., that models cannot be trained on copyrighted data, or that inference inputs should not contain prompts asking models how to build a bioweapon). 
+
+Our proposal targets the datacenter’s north‑south uplink—the communication chokepoint between the cluster and the outside world. An evidence capture device ("border patrol") at this link hashes and timestamps every packet payload (evidence capture) while actively scrubbing covert channels so traffic is reproducible. The prover retains plaintext internally; the verifier later requests samples and replays the same computation to compare hashes. This shifts trust from supply chains to observable physics, giving regulators or treaty partners a practical way to check comprehensive compute use without direct access to sensitive data.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Our evidence capture device: Border patrol</h2>
+      <div class="card">
+        <p>Every packet in or out of the datacenter must pass through our evidence capture device, so it can both <em>record evidence</em> and <em>remove covert channels</em>. We illustrate below what this would look like.</p>
+        <div class="ascii-wrap">
+          <pre class="ascii"><span class="ascii-inner">Datacenter
+  GPU cluster generates tokens
+  | plaintext payload inside datacenter
+  v
++--------------------------------+
+|     Border Patrol Device       |
+|   - capture and hash traffic   |
+|   - make traffic reproducible  |
++--------------------------------+
+  | north-south link (egress)
+  v
+External user / API client
+	  |
+          | one-way passive tap
+          v
+     Verifier evidence log</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Packet flow, step by step</h2>
+      <div class="steps">
+        <div class="step">
+          <strong>1) Inference produces a payload</strong>
+          <div>The datacenter runs a model and produces output tokens. Inside the datacenter, the payload is in plaintext (e.g., JSON chunks in a streaming API).</div>
+        </div>
+        <div class="step">
+          <strong>2) Border patrol records evidence</strong>
+          <div>For each packet, the device hashes the payload and adds a timestamp. Only hashes + timestamps are sent to the verifier. The plaintext stays inside the datacenter.</div>
+        </div>
+        <div class="step">
+          <strong>3) Active warden scrubs side‑channels</strong>
+          <div>Volatile fields (header IDs, checksums, timing quirks) are normalized so the packet stream is reproducible. This blocks steganography and timing channels.</div>
+        </div>
+        <div class="step">
+          <strong>4) Packets exit over the north‑south link</strong>
+          <div>The sanitized packets go out to users. The verifier can later pick any hash and ask the provider to show the matching plaintext for replay verification.</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>What the device does (two core jobs)</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Evidence capture</h3>
+          <p>For every packet: compute <strong>hash(payload)</strong> + <strong>timestamp</strong> and forward those to a verifier. The verifier doesn’t see the payload, but can later check that the provider’s declared traffic matches the log.</p>
+          <div class="ascii-wrap">
+            <pre class="ascii"><span class="ascii-inner">payload bytes
+   | SHA-256
+   v
+hash + timestamp  ---> verifier log</span></pre>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Active warden (scrubbing)</h3>
+          <p>Normalize headers and timing so the traffic is reproducible. This closes off covert channels that could hide undeclared computation.</p>
+          <div class="ascii-wrap">
+            <pre class="ascii"><span class="ascii-inner">packet in
+  | scrub headers
+  | retime / jitter
+  v
+packet out (deterministic)</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Prover–verifier replay check (why hashes matter)</h2>
+      <div class="card">
+        <p>The prover and verifier both execute the same declared workload. They each compute hashes of the packet stream after scrubbing. If the hashes match, the verifier is confident the prover did not run undeclared workloads outside the captured traffic.</p>
+        <div class="ascii-wrap">
+          <pre class="ascii"><span class="ascii-inner">Prover (datacenter)                    Verifier (secure facility)
+--------------------                  ----------------------------
+Run declared model                     Run same model + inputs
+Generate packets                       Generate packets
+Scrub volatile fields                  Scrub volatile fields
+Hash packet stream                     Hash packet stream
+        |                                     |
+        +--------- compare hashes ------------+
+	         match = consistent</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Packet anatomy and what gets hashed</h2>
+      <div class="card">
+        <div class="ascii-wrap">
+          <pre class="ascii"><span class="ascii-inner">Before warden (non-reproducible fields marked ✖)
+Ethernet | IP (ID✖, checksum✖) | UDP (checksum✖) | Payload
+Ethernet | IP (ID✖, checksum✖) | TCP (seq✖, ack✖, checksum✖) | Payload
+---------+----------------------+--------------------------+---------
+
+After warden (deterministic)
+Ethernet | IP (ID=0, checksum=0) | UDP (checksum=0) | Payload
+Ethernet | IP (ID=0, checksum=0) | TCP (seq=0, ack=0, checksum=0) | Payload
+---------+-----------------------+---------------------------+---------
+
+Hash + timestamp are computed over the payload stream and sent to verifier.</span></pre>
+        </div>
+        <p class="callout">The warden removes run‑to‑run noise in headers/timing, turning a non-reproducible packet stream into a reproducible one.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>How the simulation maps to the real device</h2>
+      <div class="card">
+	<p>The <a href="https://github.com/derpyplops/warden">warden</a> codebase is a concrete toy version of this flow:</p>
+        <div class="grid">
+          <div>
+            <h3>Server (datacenter)</h3>
+            <p>Precomputes Ethernet frames from a JSON payload and sends them after a UDP trigger. This is the “deterministic inference output”.</p>
+          </div>
+          <div>
+            <h3>Client (user)</h3>
+            <p>Sends the trigger, receives packets, and computes a final hash. Optional steganography mode adds a hidden packet to demonstrate detection.</p>
+          </div>
+          <div>
+            <h3>Analyzer and warden</h3>
+            <p>Normalizes volatile fields (IP ID, checksums) and compares the two captures. If traffic matches after scrubbing, it passes.</p>
+          </div>
+        </div>
+        <div class="ascii-wrap">
+          <pre class="ascii"><span class="ascii-inner">client trigger  ---> server sends frames
+\                 |
+ \                v
+  \        capture packets
+   \              |
+    \             v
+     \     normalize + hash
+      \           |
+       ------> compare</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Glossary</h2>
+      <div class="card glossary">
+        <div><span>North‑south link</span> = the uplink between the datacenter and the public internet.</div>
+        <div><span>Packet</span> = a small chunk of data sent over the network.</div>
+        <div><span>Hash</span> = a short, fixed‑size fingerprint of data; changing any byte changes the hash.</div>
+        <div><span>Warden</span> = a device that removes “extra degrees of freedom” in network traffic.</div>
+        <div><span>Replay verification</span> = re‑run the computation later and check the hashes match.</div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
