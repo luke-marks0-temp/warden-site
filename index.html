@@ -344,7 +344,7 @@ Our proposal targets the datacenter’s north‑south uplink - how the datacente
     <section>
       <h2>Our evidence capture device: Border patrol</h2>
       <div class="card">
-        <p>Every packet in or out of the datacenter must pass through our evidence capture device, so it can both <em>record evidence</em> and <em>remove covert channels</em>. We illustrate below what this would look like.</p>
+        <p>Because border patrol sits on the north-south uplink, it can see and modify every packet going out of the datacenter. This means it can both <em>record evidence</em> and <em>remove covert channels</em>. After the traffic leaves border patrol, it is fully reproducible. This means that a verifying party can later replay the same workload the prover executed, and see that the traffic the traffic was identical. If the traffic differs, the verifier knows the prover is misbehaving.</p>
         <div class="ascii-wrap">
           <div class="ascii-flipbook" data-flipbook data-interval="1000">
             <pre class="ascii" aria-live="polite"><span class="ascii-inner" data-frame>
@@ -486,7 +486,7 @@ Our proposal targets the datacenter’s north‑south uplink - how the datacente
         </div>
         <div class="step">
           <strong>4) Packets exit over the north‑south link</strong>
-          <div>The sanitized packets go out to users. The verifier can later pick any hash and ask the provider to show the matching plaintext for replay verification.</div>
+          <div>The sanitized packets go out to users. The verifier can later replay the prover's workload, confirming that the traffic is correct.</div>
         </div>
       </div>
     </section>
@@ -584,7 +584,7 @@ Hash + timestamp are computed over the payload stream and sent to verifier.</spa
         <div class="grid">
           <div>
             <h3>Server (datacenter)</h3>
-            <p>Precomputes Ethernet frames from a JSON payload and sends them after a UDP trigger. This is the “deterministic inference output”.</p>
+            <p>Precomputes Ethernet frames from a JSON payload and sends them after a UDP trigger.</p>
           </div>
           <div>
             <h3>Client (user)</h3>
