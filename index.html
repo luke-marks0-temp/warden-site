@@ -237,6 +237,65 @@
       font-weight: 600;
     }
 
+    .hash-demo {
+      margin-top: 1.4rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .hash-demo .fields {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .hash-demo label {
+      display: grid;
+      gap: 0.4rem;
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 0.95rem;
+    }
+
+    .hash-demo textarea {
+      width: 100%;
+      min-height: 90px;
+      resize: vertical;
+      padding: 0.7rem 0.8rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-family: "JetBrains Mono", "SF Mono", monospace;
+      background: #fbf8f2;
+    }
+
+    .hash-demo .results {
+      display: grid;
+      gap: 0.6rem;
+      padding: 0.9rem 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(245, 242, 234, 0.9);
+      font-family: "JetBrains Mono", "SF Mono", monospace;
+      font-size: 0.9rem;
+    }
+
+    .hash-demo .badge {
+      align-self: start;
+    }
+
+    .hash-demo .status {
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    .hash-demo .status.ok {
+      color: var(--accent);
+    }
+
+    .hash-demo .status.warn {
+      color: #8a2b2b;
+    }
+
     footer {
       margin-top: 3rem;
       color: var(--muted);
@@ -276,7 +335,7 @@
     <section>
       <div class="card">
         <h2>Abstract</h2>
-        <p>As AI becomes more powerful, it is increasingly important that we are able to verify the adherence of datacenters to international agreements on compute use. Much of the research in this area focuses on compliance – verifying that known data centre workloads abide by certain regulations or guidelines (e.g., that models cannot be trained on copyrighted data, or that inference inputs should not contain prompts asking models how to build a bioweapon). 
+	<p>As AI becomes more powerful, it is increasingly important that we are able to verify the adherence of datacenters to international agreements on compute use. Much of the research in this area focuses on compliance – verifying that known data centre workloads abide by certain regulations or guidelines (e.g., that models cannot be trained on copyrighted data, or that inference inputs should not contain prompts asking models how to build a bioweapon).<br> 
 
 Our proposal targets the datacenter’s north‑south uplink—the communication chokepoint between the cluster and the outside world. An evidence capture device ("border patrol") at this link hashes and timestamps every packet payload (evidence capture) while actively scrubbing covert channels so traffic is reproducible. The prover retains plaintext internally; the verifier later requests samples and replays the same computation to compare hashes. This shifts trust from supply chains to observable physics, giving regulators or treaty partners a practical way to check comprehensive compute use without direct access to sensitive data.</p>
       </div>
@@ -474,6 +533,27 @@ Hash packet stream                     Hash packet stream
         +--------- compare hashes ------------+
 	         match = consistent</span></pre>
         </div>
+        <div class="hash-demo" data-hash-demo>
+          <div class="fields">
+            <label>
+              Prover payload (declared traffic)
+              <textarea data-input="prover">{"prompt":"Summarize the report in 3 bullets."}</textarea>
+            </label>
+            <label>
+              Verifier payload (replayed traffic)
+              <textarea data-input="verifier">{"prompt":"Summarize the report in 3 bullets."}</textarea>
+            </label>
+          </div>
+          <div class="results">
+            <div><span class="badge">Hash check</span></div>
+            <div>Prover hash: <span data-hash="prover"></span></div>
+            <div>Verifier hash: <span data-hash="verifier"></span></div>
+            <div class="status" data-status></div>
+	    <div class="callout">Note: this is a toy hash to illustrate mismatch detection, not a cryptographic hash.<br>
+		    As you can see, if the prover tries to send cover messages, the verifier will detect this when they compare the traffic hashes.
+	    </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -608,6 +688,48 @@ Hash + timestamp are computed over the payload stream and sent to verifier.</spa
         }
       });
     });
+
+    const demo = document.querySelector("[data-hash-demo]");
+    if (demo) {
+      const proverInput = demo.querySelector('[data-input="prover"]');
+      const verifierInput = demo.querySelector('[data-input="verifier"]');
+      const proverOut = demo.querySelector('[data-hash="prover"]');
+      const verifierOut = demo.querySelector('[data-hash="verifier"]');
+      const status = demo.querySelector("[data-status]");
+
+      const fnv1a = (str) => {
+        let hash = 0x811c9dc5;
+        for (let i = 0; i < str.length; i += 1) {
+          hash ^= str.charCodeAt(i);
+          hash = (hash * 0x01000193) >>> 0;
+        }
+        return hash.toString(16).padStart(8, "0");
+      };
+
+      const update = () => {
+        const proverVal = proverInput.value;
+        const verifierVal = verifierInput.value;
+        const proverHash = fnv1a(proverVal);
+        const verifierHash = fnv1a(verifierVal);
+        proverOut.textContent = proverHash;
+        verifierOut.textContent = verifierHash;
+        if (proverHash === verifierHash) {
+          status.textContent = "Hashes match → replay is consistent.";
+          status.classList.remove("warn");
+          status.classList.add("ok");
+        } else {
+          status.textContent = "Hashes differ → verifier detects undeclared traffic.";
+          status.classList.remove("ok");
+          status.classList.add("warn");
+        }
+      };
+
+      [proverInput, verifierInput].forEach((input) => {
+        input.addEventListener("input", update);
+      });
+
+      update();
+    }
   </script>
 </body>
 </html>
